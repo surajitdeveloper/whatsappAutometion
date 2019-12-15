@@ -29,11 +29,13 @@ def start_wp(numbers, cnx, browser):
         elem.click()
         elem.send_keys(name)
         time.sleep(10)
+        print(id)
         # browser.find_element_by_xpath("//*[@title='"+name+"']").click()
         try:
             browser.find_element_by_xpath('//span[@title = "{}"]'.format(name)).click()
             time.sleep(5)
         except Exception as e:
+            print("failed")
             elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
             elem.click()
             elem.send_keys("")
@@ -51,11 +53,13 @@ def start_wp(numbers, cnx, browser):
             mycursor = cnx.cursor()
             mycursor.execute(sql)
             cnx.commit()
+            print("successful")
         except Exception as e:
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
             mycursor.execute(sql)
             cnx.commit()
+            print("failed")
 
 
 def start_surf(cnx, browser):
@@ -69,7 +73,7 @@ def start_surf(cnx, browser):
     # print(number_list[5].message)
     # print(number_list[5].id)
     start_wp(number_list, cnx, browser)
-    time.sleep(60)
+    time.sleep(3600)
     start_surf(cnx, browser)
 
 
