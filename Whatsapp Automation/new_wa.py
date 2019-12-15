@@ -34,12 +34,15 @@ def start_wp(numbers, cnx, browser):
             browser.find_element_by_xpath('//span[@title = "{}"]'.format(name)).click()
             time.sleep(5)
         except Exception as e:
+            elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
+            elem.click()
+            elem.send_keys("")
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
             mycursor.execute(sql)
             cnx.commit()
             return
-        
+
         try:
             elem = browser.find_element_by_xpath("//div[@data-tab='1']")
             elem.click()
