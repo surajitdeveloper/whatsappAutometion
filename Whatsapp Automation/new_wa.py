@@ -34,7 +34,8 @@ def start_wp(numbers, cnx, browser):
             time.sleep(5)
         except:
             browser.find_element_by_xpath(
-                '//div[@style="z-index: 101; transition: none 0s ease 0s; height: 72px; transform: translateY(72px);"]').click()
+                '//div[@style="z-index: 101; transition: none 0s ease 0s; height: 72px; '
+                'transform: translateY(72px);"]').click()
             time.sleep(5)
 
         try:
