@@ -9,10 +9,11 @@ import mysql.connector
 
 class Whatsapp(object):
     """__init__() functions as the class constructor"""
-    def __init__(self, id=None, mobile=None, message=None):
+    def __init__(self, id=None, mobile=None, message=None, saved_name=None):
         self.id = id
         self.mobile = mobile
         self.message = message
+        self.saved_name = saved_name
 
 
 def start_wp(numbers, cnx, browser):
@@ -20,7 +21,7 @@ def start_wp(numbers, cnx, browser):
     for i in range(0, len(numbers)):
         # print(i)
         # print(numbers[i].message + " " + str(numbers[i].id))
-        name = numbers[i].mobile
+        name = str(numbers[i].saved_name)
         id = numbers[i].id
         message = numbers[i].message
         now = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -32,12 +33,13 @@ def start_wp(numbers, cnx, browser):
         try:
             browser.find_element_by_xpath('//span[@title = "{}"]'.format(name)).click()
             time.sleep(5)
-        except:
-            browser.find_element_by_xpath(
-                '//div[@style="z-index: 101; transition: none 0s ease 0s; height: 72px; '
-                'transform: translateY(72px);"]').click()
-            time.sleep(5)
-
+        except Exception as e:
+            sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            return
+        
         try:
             elem = browser.find_element_by_xpath("//div[@data-tab='1']")
             elem.click()
@@ -46,7 +48,7 @@ def start_wp(numbers, cnx, browser):
             mycursor = cnx.cursor()
             mycursor.execute(sql)
             cnx.commit()
-        except:
+        except Exception as e:
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
             mycursor.execute(sql)
@@ -60,7 +62,7 @@ def start_surf(cnx, browser):
     myresult = mycursor.fetchall()
     number_list = []
     for x in myresult:
-        number_list.append(Whatsapp(x[0], x[1], x[4]))
+        number_list.append(Whatsapp(x[0], x[1], x[5], x[2]))
     # print(number_list[5].message)
     # print(number_list[5].id)
     start_wp(number_list, cnx, browser)
