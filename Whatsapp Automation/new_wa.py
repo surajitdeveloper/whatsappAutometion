@@ -54,6 +54,7 @@ def start_wp(numbers, cnx, browser):
             mycursor.execute(sql)
             cnx.commit()
             print("successful")
+            time.sleep(25)
         except Exception as e:
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
@@ -64,36 +65,33 @@ def start_wp(numbers, cnx, browser):
 
 def start_surf(cnx, browser):
     mycursor = cnx.cursor()
+    print("Connecting DB...")
+    print("Getting data...")
     mycursor.execute("SELECT * FROM whatsapp where status = 'pending' limit 100")
-
     myresult = mycursor.fetchall()
-    number_list = []
-    for x in myresult:
-        number_list.append(Whatsapp(x[0], x[1], x[5], x[2]))
-    # print(number_list[5].message)
-    # print(number_list[5].id)
-    start_wp(number_list, cnx, browser)
-    time.sleep(3600)
+    print("Got -" + str(len(myresult)) + " results")
+    if len(myresult) > 0:
+        number_list = []
+        for x in myresult:
+            number_list.append(Whatsapp(x[0], x[1], x[5], x[2]))
+        start_wp(number_list, cnx, browser)
     start_surf(cnx, browser)
 
 
-cnx = mysql.connector.connect(
-    host="78.47.90.52",
-    port=3306,
-    user="root",
-    password="Surajit@123",
-    database="whatsapp")
+try:
+    cnx = mysql.connector.connect(
+        host="78.47.90.52",
+        port=3306,
+        user="root",
+        password="Surajit@123",
+        database="whatsapp")
+except Exception as e:
+    print("Invalid DB connection");
+    exit(1)
+
 
 browser = webdriver.Chrome(executable_path='/run/media/surajit/962E95F42E95CE1D/Youtube/chromedriver')
 browser.get('https://web.whatsapp.com')
-time.sleep(60)
+time.sleep(60) # uncomment it
 start_surf(cnx, browser)
-# exit(1)
-# name='+91 85850 25948'
-# message=""
-
-
-# for i in range(20):
-#     elem.send_keys("hello this is from python " + Keys.ENTER)
-#     time.sleep(1)
-# browser.close()
+browser.close()
