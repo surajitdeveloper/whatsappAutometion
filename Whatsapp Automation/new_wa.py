@@ -13,10 +13,7 @@ class Whatsapp(object):
 
 
 def start_wp(numbers, cnx, browser):
-    # print(numbers)
     for i in range(0, len(numbers)):
-        # print(i)
-        # print(numbers[i].message + " " + str(numbers[i].id))
         name = str(numbers[i].saved_name)
         id = numbers[i].id
         message = numbers[i].message
