@@ -2,13 +2,9 @@ from selenium import webdriver
 import time
 from selenium.webdriver.common.keys import Keys
 import mysql.connector
-#enter perfect name as in your contact (it is case sensitive)
-# name=input("to whom you want to send message?")
-#replace /chromedriver with loaction of chromedriver on your computer
 
 
 class Whatsapp(object):
-    """__init__() functions as the class constructor"""
     def __init__(self, id=None, mobile=None, message=None, saved_name=None):
         self.id = id
         self.mobile = mobile
@@ -54,7 +50,7 @@ def start_wp(numbers, cnx, browser):
             mycursor.execute(sql)
             cnx.commit()
             print("successful")
-            time.sleep(25)
+            time.sleep(10)
         except Exception as e:
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
