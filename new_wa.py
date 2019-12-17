@@ -2,6 +2,8 @@ from selenium import webdriver
 import time
 from selenium.webdriver.common.keys import Keys
 import mysql.connector
+import os
+import pipes
 
 
 class Whatsapp(object):
@@ -47,7 +49,7 @@ def start_wp(numbers, cnx, browser):
             mycursor.execute(sql)
             cnx.commit()
             print("successful")
-            time.sleep(10)
+            # time.sleep(10)
         except Exception as e:
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
@@ -58,12 +60,17 @@ def start_wp(numbers, cnx, browser):
 
 def start_surf(browser):
     try:
+        host = '78.47.90.52'
+        port = 3306
+        user = "root"
+        password = "Surajit@123"
+        dbname = "whatsapp"
         cnx = mysql.connector.connect(
-            host="78.47.90.52",
-            port=3306,
-            user="root",
-            password="Surajit@123",
-            database="whatsapp")
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            database=dbname)
         mycursor = cnx.cursor()
     except Exception as e:
         print("Invalid DB connection")
@@ -71,20 +78,49 @@ def start_surf(browser):
         exit(1)
     print("Connecting DB...")
     print("Getting data...")
-    mycursor.execute("SELECT * FROM whatsapp where status = 'pending' limit 100")
+    mycursor.execute("SELECT * FROM whatsapp where status = 'pending' and read_flag = 0 limit 100")
     myresult = mycursor.fetchall()
     print("Got - " + str(len(myresult)) + " records")
     if len(myresult) > 0:
         number_list = []
         for x in myresult:
             number_list.append(Whatsapp(x[0], x[1], x[5], x[2]))
+        # print(number_list)
+        id_str = ""
+        for i in range(0, len(number_list)):
+            id_str += str(number_list[i].id)
+            if i + 1 != len(number_list):
+                id_str += ","
+        # print(id_str)
+        now = time.strftime('%Y-%m-%d %H:%M:%S')
+        uodate_query = "update whatsapp set read_flag = 1, read_start_flag = '"+now+"' where id in ("+id_str+")"
+        # print(uodate_query)
+        # exit(1)
+        mycursor = cnx.cursor()
+        mycursor.execute(uodate_query)
+        cnx.commit()
         start_wp(number_list, cnx, browser)
+        now = time.strftime('%Y-%m-%d %H:%M:%S')
+        uodate_query = "update whatsapp set read_flag = 0, read_end_flag = '"+now+"' where id in (" + id_str + ")"
+        mycursor = cnx.cursor()
+        mycursor.execute(uodate_query)
+    try:
+        DATETIME = time.strftime('%Y%m%d-%H%M%S')
+        TODAYBACKUPPATH = './' + DATETIME
+        db = dbname
+        dumpcmd = "mysqldump -h " + host + " -u " + user + " -p" + password + " " + db + " > " + pipes.quote(
+            TODAYBACKUPPATH) + "/" + db + ".sql"
+        os.system(dumpcmd)
+        gzipcmd = "gzip " + pipes.quote(TODAYBACKUPPATH) + "_" + db + ".sql"
+        os.system(gzipcmd)
+    except Exception as e:
+        print("DB cant be backup")
     print("Waiting for getting new data")
     time.sleep(60)
     start_surf(browser)
 
 
-browser = webdriver.Chrome(executable_path='/run/media/surajit/962E95F42E95CE1D/Youtube/chromedriver')
+browser = webdriver.Chrome(executable_path='chromedriver')
 browser.get('https://web.whatsapp.com')
 time.sleep(60) # uncomment it
 start_surf(browser)
