@@ -20,9 +20,13 @@ def start_wp(numbers, cnx, browser):
         id = numbers[i].id
         message = numbers[i].message
         now = time.strftime('%Y-%m-%d %H:%M:%S')
-        elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
-        elem.click()
-        elem.send_keys(name)
+        try:
+            elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
+            elem.click()
+            elem.send_keys(name)
+        except Exception as e:
+            print("you are still not loggedin in whatapp")
+            browser.close()
         time.sleep(10)
         print("id - "+str(id))
         # browser.find_element_by_xpath("//*[@title='"+name+"']").click()
