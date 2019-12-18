@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import mysql.connector
 import os
 import pipes
+import platform
 
 
 class Whatsapp(object):
@@ -32,6 +33,14 @@ def start_wp(numbers, cnx, browser, id_str):
             mycursor.execute(uodate_query)
             cnx.commit()
             browser.close()
+            time.sleep(3)
+            if platform.system() == "Linux":
+                os.system("python3 whatsAppBot.py")
+            elif platform.system() == "Windows":
+                os.system("python whatsAppBot.py")
+            else:
+                print(platform.system())
+                exit(1)
             exit(1)
         time.sleep(10)
         print("id - "+str(id))
@@ -41,9 +50,9 @@ def start_wp(numbers, cnx, browser, id_str):
             time.sleep(5)
         except Exception as e:
             print("failed")
-            elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
-            elem.click()
-            elem.send_keys("")
+            # elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
+            # elem.click()
+            # elem.send_keys("")
             sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
             mycursor = cnx.cursor()
             mycursor.execute(sql)
@@ -130,8 +139,13 @@ def start_surf(browser):
     time.sleep(60)
     start_surf(browser)
 
-
-browser = webdriver.Chrome(executable_path='chromedriver')
+if platform.system() == "Linux":
+    browser = webdriver.Chrome(executable_path='chromedriver')
+elif platform.system() == "Windows":
+    browser = webdriver.Chrome(executable_path='chromedriver.exe')
+else:
+    print(platform.system())
+    exit(1)
 browser.get('https://web.whatsapp.com')
 time.sleep(60) # uncomment it
 start_surf(browser)
