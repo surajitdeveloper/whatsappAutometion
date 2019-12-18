@@ -14,7 +14,7 @@ class Whatsapp(object):
         self.saved_name = saved_name
 
 
-def start_wp(numbers, cnx, browser):
+def start_wp(numbers, cnx, browser, id_str):
     for i in range(0, len(numbers)):
         name = str(numbers[i].saved_name)
         id = numbers[i].id
@@ -26,7 +26,13 @@ def start_wp(numbers, cnx, browser):
             elem.send_keys(name)
         except Exception as e:
             print("you are still not loggedin in whatapp")
+            now = time.strftime('%Y-%m-%d %H:%M:%S')
+            uodate_query = "update whatsapp set read_flag = 0, read_end_flag = '" + now + "' where id in (" + id_str + ")"
+            mycursor = cnx.cursor()
+            mycursor.execute(uodate_query)
+            cnx.commit()
             browser.close()
+            exit(1)
         time.sleep(10)
         print("id - "+str(id))
         # browser.find_element_by_xpath("//*[@title='"+name+"']").click()
@@ -103,11 +109,12 @@ def start_surf(browser):
         mycursor = cnx.cursor()
         mycursor.execute(uodate_query)
         cnx.commit()
-        start_wp(number_list, cnx, browser)
+        start_wp(number_list, cnx, browser, id_str)
         now = time.strftime('%Y-%m-%d %H:%M:%S')
         uodate_query = "update whatsapp set read_flag = 0, read_end_flag = '"+now+"' where id in (" + id_str + ")"
         mycursor = cnx.cursor()
         mycursor.execute(uodate_query)
+        cnx.commit()
     try:
         DATETIME = time.strftime('%Y%m%d-%H%M%S')
         TODAYBACKUPPATH = './' + DATETIME
