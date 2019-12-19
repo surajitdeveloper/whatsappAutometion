@@ -28,8 +28,10 @@ def start_wp(numbers, cnx, browser, id_str):
         try:
             whatsappUrl = "https://web.whatsapp.com/send?phone=" + number + "&text=" + message
             browser.get(whatsappUrl)
+            time.sleep(1)
             wait = WebDriverWait(browser, 600)
             wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
+            time.sleep(4)
             print("Whatsapp contact loaded")
             print("id - " + str(id))
         except Exception as e:
@@ -129,6 +131,7 @@ else:
 browser.get('https://web.whatsapp.com')
 wait = WebDriverWait(browser, 600)
 wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
+time.sleep(5)
 print("You are successfully logged in whatsApp web")
 start_surf(browser)
 browser.close()
