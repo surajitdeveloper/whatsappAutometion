@@ -25,29 +25,36 @@ def start_wp(numbers, cnx, browser, id_str):
         message = numbers[i].message
         number = "91"+str(numbers[i].mobile)
         now = time.strftime('%Y-%m-%d %H:%M:%S')
-        whatsappUrl = "https://web.whatsapp.com/send?phone="+number+"&text="+message
-        browser.get(whatsappUrl)
-        wait = WebDriverWait(browser, 600)
-        wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
-        print("Whatsapp contact loaded")
-        print("id - "+str(id))
-      
-        # try:
-        #     elem = browser.find_element_by_xpath("//div[@data-tab='1']")
-        #     elem.click()
-        #     elem.send_keys(message + Keys.ENTER)
-        #     sql = "UPDATE whatsapp SET status = 'successful', update_on = '"+now+"' WHERE id = '"+str(id)+"'"
-        #     mycursor = cnx.cursor()
-        #     mycursor.execute(sql)
-        #     cnx.commit()
-        #     print("successful")
-        #     # time.sleep(10)
-        # except Exception as e:
-        #     sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
-        #     mycursor = cnx.cursor()
-        #     mycursor.execute(sql)
-        #     cnx.commit()
-        #     print("failed")
+        try:
+            whatsappUrl = "https://web.whatsapp.com/send?phone=" + number + "&text=" + message
+            browser.get(whatsappUrl)
+            wait = WebDriverWait(browser, 600)
+            wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
+            print("Whatsapp contact loaded")
+            print("id - " + str(id))
+        except Exception as e:
+            print("failed")
+            sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            return False
+        try:
+            elem = browser.find_element_by_xpath("//div[@data-tab='1']")
+            # elem.click()
+            elem.send_keys(Keys.ENTER)
+            sql = "UPDATE whatsapp SET status = 'successful', update_on = '"+now+"' WHERE id = '"+str(id)+"'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            print("successful")
+            # time.sleep(10)
+        except Exception as e:
+            sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            print("failed")
 
 
 def start_surf(browser):
