@@ -26,47 +26,12 @@ def start_wp(numbers, cnx, browser, id_str):
         number = "91"+str(numbers[i].mobile)
         now = time.strftime('%Y-%m-%d %H:%M:%S')
         whatsappUrl = "https://web.whatsapp.com/send?phone="+number+"&text="+message
-        try:
-            elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
-        except Exception as e:
-            print("you are still not loggedin in whatapp")
-            now = time.strftime('%Y-%m-%d %H:%M:%S')
-            uodate_query = "update whatsapp set read_flag = 0, read_end_flag = '" + now + "' where id in (" + id_str + ")"
-            mycursor = cnx.cursor()
-            mycursor.execute(uodate_query)
-            cnx.commit()
-            browser.close()
-            time.sleep(3)
-            if platform.system() == "Linux":
-                os.system("python3 whatsAppBot.py")
-            elif platform.system() == "Windows":
-                os.system("python whatsAppBot.py")
-            else:
-                print(platform.system())
-                exit(1)
-            exit(1)
-
         browser.get(whatsappUrl)
         wait = WebDriverWait(browser, 600)
-        wait.until(EC.presence_of_all_elements_located(By.XPATH, "//input[@title='Search or start new chat']"))
-        print("loaded")
-        exit(1)
-        # print("id - "+str(id))
-        # # browser.find_element_by_xpath("//*[@title='"+name+"']").click()
-        # try:
-        #     browser.find_element_by_xpath('//span[@title = "{}"]'.format(name)).click()
-        #     time.sleep(5)
-        # except Exception as e:
-        #     print("failed")
-        #     # elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
-        #     # elem.click()
-        #     # elem.send_keys("")
-        #     sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
-        #     mycursor = cnx.cursor()
-        #     mycursor.execute(sql)
-        #     cnx.commit()
-        #     return
-        #
+        wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
+        print("Whatsapp contact loaded")
+        print("id - "+str(id))
+      
         # try:
         #     elem = browser.find_element_by_xpath("//div[@data-tab='1']")
         #     elem.click()
