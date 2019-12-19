@@ -2,3 +2,5 @@ pip install selenium
 pip3 install selenium
 pip install mysql-connector
 pip3 install mysql-connector
+pip install webbot
+pip3 install webbot

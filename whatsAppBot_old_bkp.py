@@ -1,9 +1,6 @@
 from selenium import webdriver
 import time
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 import mysql.connector
 import os
 import pipes
@@ -23,11 +20,11 @@ def start_wp(numbers, cnx, browser, id_str):
         name = str(numbers[i].saved_name)
         id = numbers[i].id
         message = numbers[i].message
-        number = "91"+str(numbers[i].mobile)
         now = time.strftime('%Y-%m-%d %H:%M:%S')
-        whatsappUrl = "https://web.whatsapp.com/send?phone="+number+"&text="+message
         try:
             elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
+            elem.click()
+            elem.send_keys(name)
         except Exception as e:
             print("you are still not loggedin in whatapp")
             now = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -45,44 +42,39 @@ def start_wp(numbers, cnx, browser, id_str):
                 print(platform.system())
                 exit(1)
             exit(1)
+        time.sleep(10)
+        print("id - "+str(id))
+        # browser.find_element_by_xpath("//*[@title='"+name+"']").click()
+        try:
+            browser.find_element_by_xpath('//span[@title = "{}"]'.format(name)).click()
+            time.sleep(5)
+        except Exception as e:
+            print("failed")
+            # elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
+            # elem.click()
+            # elem.send_keys("")
+            sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            return
 
-        browser.get(whatsappUrl)
-        wait = WebDriverWait(browser, 600)
-        wait.until(EC.presence_of_all_elements_located(By.XPATH, "//input[@title='Search or start new chat']"))
-        print("loaded")
-        exit(1)
-        # print("id - "+str(id))
-        # # browser.find_element_by_xpath("//*[@title='"+name+"']").click()
-        # try:
-        #     browser.find_element_by_xpath('//span[@title = "{}"]'.format(name)).click()
-        #     time.sleep(5)
-        # except Exception as e:
-        #     print("failed")
-        #     # elem = browser.find_element_by_xpath("//input[@title='Search or start new chat']")
-        #     # elem.click()
-        #     # elem.send_keys("")
-        #     sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
-        #     mycursor = cnx.cursor()
-        #     mycursor.execute(sql)
-        #     cnx.commit()
-        #     return
-        #
-        # try:
-        #     elem = browser.find_element_by_xpath("//div[@data-tab='1']")
-        #     elem.click()
-        #     elem.send_keys(message + Keys.ENTER)
-        #     sql = "UPDATE whatsapp SET status = 'successful', update_on = '"+now+"' WHERE id = '"+str(id)+"'"
-        #     mycursor = cnx.cursor()
-        #     mycursor.execute(sql)
-        #     cnx.commit()
-        #     print("successful")
-        #     # time.sleep(10)
-        # except Exception as e:
-        #     sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
-        #     mycursor = cnx.cursor()
-        #     mycursor.execute(sql)
-        #     cnx.commit()
-        #     print("failed")
+        try:
+            elem = browser.find_element_by_xpath("//div[@data-tab='1']")
+            elem.click()
+            elem.send_keys(message + Keys.ENTER)
+            sql = "UPDATE whatsapp SET status = 'successful', update_on = '"+now+"' WHERE id = '"+str(id)+"'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            print("successful")
+            # time.sleep(10)
+        except Exception as e:
+            sql = "UPDATE whatsapp SET status = 'failed', update_on = '" + now + "' WHERE id = '" + str(id) + "'"
+            mycursor = cnx.cursor()
+            mycursor.execute(sql)
+            cnx.commit()
+            print("failed")
 
 
 def start_surf(browser):
@@ -134,17 +126,17 @@ def start_surf(browser):
         cnx.commit()
     try:
         DATETIME = time.strftime('%Y%m%d-%H%M%S')
-        TODAYBACKUPPATH = './db_backup/' + DATETIME
+        TODAYBACKUPPATH = './' + DATETIME
         db = dbname
         dumpcmd = "mysqldump -h " + host + " -u " + user + " -p" + password + " " + db + " > " + pipes.quote(
-            TODAYBACKUPPATH) + "_" + db + ".sql"
+            TODAYBACKUPPATH) + "/" + db + ".sql"
         os.system(dumpcmd)
         gzipcmd = "gzip " + pipes.quote(TODAYBACKUPPATH) + "_" + db + ".sql"
         os.system(gzipcmd)
     except Exception as e:
         print("DB cant be backup")
     print("Waiting for getting new data")
-    # time.sleep(60) #uncomment it
+    time.sleep(60)
     start_surf(browser)
 
 if platform.system() == "Linux":
@@ -155,8 +147,6 @@ else:
     print(platform.system())
     exit(1)
 browser.get('https://web.whatsapp.com')
-wait = WebDriverWait(browser, 600)
-wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
-print("You are successfully logged in whatsApp web")
+time.sleep(60) # uncomment it
 start_surf(browser)
 browser.close()
