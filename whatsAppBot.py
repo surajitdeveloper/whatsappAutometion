@@ -42,8 +42,8 @@ def start_wp(numbers, cnx, browser, id_str):
             cnx.commit()
             return False
         try:
+            time.sleep(5)
             elem = browser.find_element_by_xpath("//div[@data-tab='1']")
-            # elem.click()
             elem.send_keys(Keys.ENTER)
             sql = "UPDATE whatsapp SET status = 'successful', update_on = '"+now+"' WHERE id = '"+str(id)+"'"
             mycursor = cnx.cursor()
@@ -118,8 +118,9 @@ def start_surf(browser):
     except Exception as e:
         print("DB cant be backup")
     print("Waiting for getting new data")
-    # time.sleep(60) #uncomment it
+    time.sleep(30) #uncomment it
     start_surf(browser)
+
 
 if platform.system() == "Linux":
     browser = webdriver.Chrome(executable_path='chromedriver')
@@ -131,7 +132,7 @@ else:
 browser.get('https://web.whatsapp.com')
 wait = WebDriverWait(browser, 600)
 wait.until(EC.presence_of_all_elements_located((By.XPATH, "//input[@title='Search or start new chat']")))
-time.sleep(5)
+time.sleep(1)
 print("You are successfully logged in whatsApp web")
 start_surf(browser)
 browser.close()
